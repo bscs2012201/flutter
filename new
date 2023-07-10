@@ -1,0 +1,60 @@
+import 'dart:convert';
+import 'package:encrypt/encrypt.dart';
+import 'package:pointycastle/asymmetric/api.dart';
+
+class RSAHelper {
+  static const publicKeyStr = '''
+-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCVCX5kQyhRFApydbDUxhkgZrT
+omkpay/fh6tlb2X5Fh3Ez5z9QXcTV9LqfRRITmJBRFuy8T7auBs4of/J4fvjSuu6
+v91dzKAn3LTy/PDEn9kKQEpufZo+sGKtr3IyxXx08W+im6iCJ3z11YaUrqyKZehq
+qvX8VkKFsl1nX4mlYXQIDAQAB
+-----END PUBLIC KEY-----
+''';
+
+  static const privateKeyStr = '''
+-----BEGIN PRIVATE KEY-----
+MIICdQIBADANBgkqhkiG9w0BAQEFAASCAl8wggJbAgEAAoGBAJUJfmRDKFEUCnJ1
+sNTGGSBmtOiaSlrL9+Hq2VvZfkWHcTPnP1BdxNX0up9FEhOYkFEW7LxPtq4Gzih/
+8nh++NK67q/3V3MoCfctPL88MSf2QpASm59mj6wYq2vcjLFfHTxb6KbqIInfPXVh
+pSurIpl6Gqq9fxWQoWyXWdfiaVhdAgMBAAECgYAtuQ3noJrb1PQnjWfEv0myIRBb
+VAp/tJfF3ZD1ltIgbp8SN127QClFIqGmf0A+ds2/svLKCwKWfUv+LNKsmPeo5wpK
+f2OEfyuLGU7ioiW5INS5HdJFgkqq4NHop26lQJCuCyOqeS8bo41hyhwa99P8ARxt
+JNPvT2YYKN5Mbe+22QJBAMRF27IEvDRQ33o8JR43jneAXD3q0/J7tOckHRgXF1Ab
+iSss47sJocp4s06Rm8E4k5qjWldJT9uX4MjqUKkytJMCQQDCY9msZ8aULX1lTwj6
+jHCxb5g1AdVAE34JkFq+j3cue3dMhP34zaidJXUMnBEFtbhK30JTm1m+cQQkUsmB
+iEVPAkBN4kK5s3NTdzwW70LzaKxZ80+nKkYMlNZGWmhJJPCVUzftMBT2JW5UP+03
+IkSiOecol+XDeU39H5mNYJ29ZmeNAkBUEw2dVJD9m6MlgwZ2HvHKvGJPYsiR2xxj
+FI066B/6+amCbe7OglyQAxhZ6NIv7wWTVHaCZKlvBcBt2WSP4plfAkA/R1xpnPZs
+z97w9/ssmHXwL1x9MLzekU44ZHcuKfbuYBi6HuDOCmWe5B3ndAXx60ToI2khMHi5
+VjlKqUl/ppMM
+-----END PRIVATE KEY-----
+''';
+
+  static Future<String> encrypt(String plainText) async {
+    final publicKey = RSAKeyParser().parse(publicKeyStr) as RSAPublicKey;
+
+    final encrypter = Encrypter(RSA(publicKey: publicKey));
+    final encrypted = encrypter.encrypt(plainText);
+    return encrypted.base64;
+  }
+
+  static Future<String> decrypt(String encryptedText) async {
+    final privateKey = RSAKeyParser().parse(privateKeyStr) as RSAPrivateKey;
+
+    final decrypter = Encrypter(RSA(privateKey: privateKey));
+    final decrypted = decrypter.decrypt64(encryptedText);
+    return decrypted;
+  }
+}
+
+void main() async {
+  final plainText = 'Szabist';
+
+  final encryptedText = await RSAHelper.encrypt(plainText);
+  print('Encrypted: $encryptedText');
+
+  final decryptedText = await RSAHelper.decrypt(encryptedText);
+  print('Decrypted: $decryptedText');
+}
+
